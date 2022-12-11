@@ -6,7 +6,7 @@
 /*   By: parkharo <parkharo@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 12:52:37 by marius            #+#    #+#             */
-/*   Updated: 2022/12/11 11:30:12 by parkharo         ###   ########.fr       */
+/*   Updated: 2022/12/11 12:50:48 by parkharo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,17 +125,17 @@ int	get_room(t_room *room, t_farm *farm)
 	ret = gnl_store(0, &line, farm, 2);
 	while (ret > 0 && line && dash_comment(line, 0) != -1)
 	{
-		if (!useless_if_statement(&line, farm, room, &id))
-			return (error_free_line(line));
-		// if (line && line[0] == '#')
-		// {
-		// 	if (check_comment(farm, line) == -1)
-		// 		return (error_free_line(line));
-		// }
-		// else if (line && ft_strchr(line, '-') == NULL)
-		// 	if ((!(line) || (room_check_syntax(&line)) == 0)
-		// 		|| (new_room(farm, &room, line, id++)) == 0)
-		// 		return (error_free_line(line));
+		// if (!useless_if_statement(&line, farm, room, &id))
+		// 	return (error_free_line(line));
+		if (line && line[0] == '#')
+		{
+			if (check_comment(farm, line) == -1)
+				return (error_free_line(line));
+		}
+		else if (line && ft_strchr(line, '-') == NULL)
+			if ((!(line) || (room_check_syntax(&line)) == 0)
+				|| (new_room(farm, &room, line, id++)) == 0)
+				return (error_free_line(line));
 		ft_memdel((void *)&line);
 		ret = gnl_store(0, &line, farm, 2);
 		if (line && dash_comment(line, 1) != -1)
