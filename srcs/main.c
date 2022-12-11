@@ -6,7 +6,7 @@
 /*   By: parkharo <parkharo@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/08 12:46:36 by marius            #+#    #+#             */
-/*   Updated: 2022/12/10 17:27:58 by parkharo         ###   ########.fr       */
+/*   Updated: 2022/12/11 12:49:00 by parkharo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,5 @@ int	main(int argc, char **argv)
 	ft_putchar('\n');
 	solve(farm);
 	ft_free_lemin(farm, room);
-	sleep (3);
 	return (0);
 }
