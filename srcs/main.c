@@ -23,7 +23,7 @@ static void	write_input(t_farm *farm)
 	}
 }
 
-static int	read_flag(int argc, char **av)
+static int	read_flag(int argc, char **av, int *flag)
 {
 	int	index;
 
@@ -33,11 +33,14 @@ static int	read_flag(int argc, char **av)
 		while (++index < argc)
 		{
 			if (ft_strcmp(av[index], "-l") == 0)
-				return (1);
+				*flag |= FLAG_LINES;
+			else if (ft_strcmp(av[index], "-j") == 0)
+				*flag |= FLAG_JSON;
 			else
 			{
-				ft_printf("usage: %s < <map> [-l flag for \
-					number of moves]\n", av[0]);
+				ft_printf("Usage: %s < [map] [-l] [-j]\n", av[0]);
+				ft_printf("  -l : Display number of lines (turns)\n");
+				ft_printf("  -j : Output in JSON format\n");
 				return (-1);
 			}
 		}
@@ -51,8 +54,8 @@ int	main(int argc, char **argv)
 	t_room	*room;
 	int		flag;
 
-	flag = read_flag(argc, argv);
-	if (flag == -1)
+	flag = 0;
+	if (read_flag(argc, argv, &flag) == -1)
 		return (0);
 	farm = ft_memalloc(sizeof(t_farm));
 	if (!(farm))
@@ -63,10 +66,12 @@ int	main(int argc, char **argv)
 	farm->first_room = room;
 	if (read_file(farm, room) == -1)
 		return (ft_free_lemin(farm, room));
-	write_input(farm);
-	ft_putchar('\n');
+	if (!(flag & FLAG_JSON))
+	{
+		write_input(farm);
+		ft_putchar('\n');
+	}
 	solve(farm, flag);
 	ft_free_lemin(farm, room);
-	sleep (3);
 	return (0);
 }

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lem-in Visualizer</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #1e1e1e; color: #eee; margin: 0; overflow: hidden; }
+        #controls { position: absolute; top: 10px; left: 10px; z-index: 10; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 8px; }
+        canvas { display: block; }
+        .node { stroke: #fff; stroke-width: 1.5px; }
+        .link { stroke: #999; stroke-opacity: 0.6; }
+        .ant { fill: #ff4757; stroke: #fff; stroke-width: 1px; }
+        button { background: #57606f; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2f3542; }
+    </style>
+</head>
+<body>
+<div id="controls">
+    <h2>Lem-in Visualizer</h2>
+    <div id="stats">Ants: <span id="ant-count">0</span> | Turn: <span id="current-turn">0</span> / <span id="total-turns">0</span></div>
+    <br>
+    <button id="play-btn">Play</button>
+    <button id="reset-btn">Reset</button>
+    <input type="range" id="speed" min="100" max="2000" value="500"> Speed
+    <br><br>
+    <div style="font-size: 0.8em; color: #aaa;">Drop a lem-in JSON output here or use the default.</div>
+</div>
+<svg id="viz"></svg>
+
+<script>
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    const svg = d3.select("#viz")
+        .attr("width", width)
+        .attr("height", height);
+
+    let data = null;
+    let currentTurn = 0;
+    let playing = false;
+    let timer = null;
+
+    // Load data from stdin/file (simulated here)
+    function init(json) {
+        data = json;
+        document.getElementById('ant-count').innerText = data.ants;
+        document.getElementById('total-turns').innerText = data.turns.length;
+        render();
+    }
+
+    function render() {
+        svg.selectAll("*").remove();
+        
+        const g = svg.append("g");
+        
+        // Simple force simulation for layout if coordinates aren't perfect
+        const nodes = data.rooms.map(d => ({...d, id: d.name}));
+        const links = data.links.map(d => ({source: d.from, target: d.to}));
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(100))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2));
+
+        const link = g.append("g")
+            .attr("class", "links")
+            .selectAll("line")
+            .data(links)
+            .enter().append("line")
+            .attr("class", "link")
+            .attr("stroke", "#555");
+
+        const node = g.append("g")
+            .attr("class", "nodes")
+            .selectAll("circle")
+            .data(nodes)
+            .enter().append("circle")
+            .attr("class", "node")
+            .attr("r", 8)
+            .attr("fill", d => d.role === 'start' ? '#2ed573' : (d.role === 'end' ? '#ff4757' : '#ffa502'))
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        node.append("title").text(d => d.name);
+
+        simulation.on("tick", () => {
+            link
+                .attr("x1", d => d.source.x)
+                .attr("y1", d => d.source.y)
+                .attr("x2", d => d.target.x)
+                .attr("y2", d => d.target.y);
+
+            node
+                .attr("cx", d => d.x)
+                .attr("cy", d => d.y);
+        });
+
+        function dragstarted(event) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            event.subject.fx = event.subject.x;
+            event.subject.fy = event.subject.y;
+        }
+        function dragged(event) {
+            event.subject.fx = event.x;
+            event.subject.fy = event.y;
+        }
+        function dragended(event) {
+            if (!event.active) simulation.alphaTarget(0);
+            event.subject.fx = null;
+            event.subject.fy = null;
+        }
+    }
+
+    // Handle play/pause etc.
+    // (Animation logic would go here, moving ants along links)
+</script>
+</body>
+</html>

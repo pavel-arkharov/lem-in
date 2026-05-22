@@ -14,7 +14,7 @@ NAME		=	lem-in
 LIBFT		=	libft/libftprintf.a
 FLAGS		=	-Wall -Wextra -Werror -I includes -I libft/includes -I libft/libft
 
-SRC		=	ant_helper.c breadthsearch.c generate.c ft_free.c read_file.c get_links.c get_room.c gnl_store.c main.c new_room.c optimize_ants.c path_helper.c queue_helper.c save_path.c send_ants.c solve.c weight_helper.c norm_stuff.c
+SRC		=	ant_helper.c breadthsearch.c generate.c ft_free.c read_file.c get_links.c get_room.c gnl_store.c main.c new_room.c optimize_ants.c path_helper.c queue_helper.c save_path.c send_ants.c solve.c weight_helper.c norm_stuff.c json_output.c
 
 LIBFT_DIR	=	libft/
 SRC_DIR		=	srcs/

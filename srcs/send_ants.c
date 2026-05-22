@@ -24,13 +24,21 @@ static int	find_last_ant(t_farm *farm, int *path)
 	return (index + 1);
 }
 
-static int	reach_finish(int *path, t_farm *farm, int index, int *x)
+static int	reach_finish(int *path, t_farm *farm, int index, int *x, int flag, int *first)
 {
 	if (path[index] == farm->end->id)
 	{
-		x[0] = check_print_space(x[0]);
-		ft_printf("L%d-%s", farm->id_table[path[index - 1]]->empty,
-			farm->id_table[path[index]]->name);
+		if (!(flag & FLAG_JSON))
+		{
+			x[0] = check_print_space(x[0]);
+			ft_printf("L%d-%s", farm->id_table[path[index - 1]]->empty,
+				farm->id_table[path[index]]->name);
+		}
+		else
+		{
+			print_json_move(farm->id_table[path[index - 1]]->empty, farm->id_table[path[index]]->name, first[0]);
+			first[0] = 0;
+		}
 		if (index >= 1)
 			farm->id_table[path[index - 1]]->empty = -1;
 		return (1);
@@ -38,20 +46,30 @@ static int	reach_finish(int *path, t_farm *farm, int index, int *x)
 	return (0);
 }
 
-static void	move_the_ant(int *path, t_farm *f, int i, int *x)
+static void	move_the_ant(int *path, t_farm *f, int i, int *x, int flag, int *first)
 {
 	if (f->id_table[path[i]]->empty == -1 \
 		&& i > 1 && f->id_table[path[i - 1]]->empty != -1)
 	{
-		x[0] = check_print_space(x[0]);
-		f->id_table[path[i]]->empty = f->id_table[path[i - 1]]->empty;
-		f->id_table[path[i - 1]]->empty = -1;
-		ft_printf("L%d-%s", f->id_table[path[i]]->empty,
-			f->id_table[path[i]]->name);
+		if (!(flag & FLAG_JSON))
+		{
+			x[0] = check_print_space(x[0]);
+			f->id_table[path[i]]->empty = f->id_table[path[i - 1]]->empty;
+			f->id_table[path[i - 1]]->empty = -1;
+			ft_printf("L%d-%s", f->id_table[path[i]]->empty,
+				f->id_table[path[i]]->name);
+		}
+		else
+		{
+			f->id_table[path[i]]->empty = f->id_table[path[i - 1]]->empty;
+			f->id_table[path[i - 1]]->empty = -1;
+			print_json_move(f->id_table[path[i]]->empty, f->id_table[path[i]]->name, first[0]);
+			first[0] = 0;
+		}
 	}
 }
 
-static void	move_ants_on_path(t_farm *farm, int *path, int *fin_ants, int *x)
+static void	move_ants_on_path(t_farm *farm, int *path, int *fin_ants, int *x, int flag, int *first)
 {
 	int		index;
 
@@ -60,19 +78,21 @@ static void	move_ants_on_path(t_farm *farm, int *path, int *fin_ants, int *x)
 		return ;
 	while (index != 0)
 	{
-		if ((reach_finish(path, farm, index, x)) == 1)
+		if ((reach_finish(path, farm, index, x, flag, first)) == 1)
 			++fin_ants[0];
 		else if (fin_ants[0] < farm->ant_nb)
-			move_the_ant(path, farm, index, x);
+			move_the_ant(path, farm, index, x, flag, first);
 		--index;
 	}
 }
 
-int	send_ants(t_farm *farm, t_path *paths, int mv_ants, int x)
+int	send_ants(t_farm *farm, t_path *paths, int mv_ants, int flag)
 {
 	int		fin_ants;
 	int		index1;
 	int		index2;
+	int		x;
+	int		first;
 	t_path	*path;
 
 	mv_ants = 0;
@@ -80,19 +100,26 @@ int	send_ants(t_farm *farm, t_path *paths, int mv_ants, int x)
 	fin_ants = 0;
 	while (fin_ants < farm->ant_nb && (++index2 || 1))
 	{
+		if (flag & FLAG_JSON)
+			print_json_turn_start(index2);
+		first = 1;
 		path = reset_ants(&x, &index1, paths);
 		while (++index1 < paths->max)
 		{
-			move_ants_on_path(farm, path->path, &fin_ants, &x);
+			move_ants_on_path(farm, path->path, &fin_ants, &x, flag, &first);
 			if (mv_ants < farm->ant_nb && paths->division[index1] > 0)
 			{
-				x = check_print_space(x);
-				mv_ants = send_new_ant(farm, path->path, mv_ants, &fin_ants);
+				if (!(flag & FLAG_JSON))
+					x = check_print_space(x);
+				mv_ants = send_new_ant(farm, path->path, mv_ants, &fin_ants, flag, &first);
 				--paths->division[index1];
 			}
 			path = path->next;
 		}
-		ft_putchar('\n');
+		if (flag & FLAG_JSON)
+			print_json_turn_end();
+		else
+			ft_putchar('\n');
 	}
 	return (index2);
 }

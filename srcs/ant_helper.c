@@ -17,11 +17,8 @@
 ** we have not yet sent out all ants, send a new ant onto the path.
 */
 
-int	send_new_ant(t_farm *farm, int *path, int mov, int *fin)
+int	send_new_ant(t_farm *farm, int *path, int mov, int *fin, int flag, int *first)
 {
-	int		index;
-
-	index = 0;
 	if (mov <= farm->ant_nb && farm->id_table[path[1]]->empty == -1)
 	{
 		++mov;
@@ -31,8 +28,13 @@ int	send_new_ant(t_farm *farm, int *path, int mov, int *fin)
 			farm->id_table[path[1]]->empty = -1;
 			++fin[0];
 		}
-		ft_printf("L%d-%s", mov, farm->id_table[path[1]]->name);
-		++index;
+		if (flag & FLAG_JSON)
+		{
+			print_json_move(mov, farm->id_table[path[1]]->name, first[0]);
+			first[0] = 0;
+		}
+		else
+			ft_printf("L%d-%s", mov, farm->id_table[path[1]]->name);
 	}
 	return (mov);
 }

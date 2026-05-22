@@ -30,6 +30,7 @@ static int	room_exist(char *room, t_farm *farm)
 static int	init_room(t_farm *farm, t_room *room, char *line, int id)
 {
 	int		name_size;
+	char	*coord;
 
 	name_size = 0;
 	while (line[name_size] != ' ')
@@ -39,6 +40,14 @@ static int	init_room(t_farm *farm, t_room *room, char *line, int id)
 		return (-1);
 	if (room_exist(room->name, farm) == -1)
 		return (-1);
+	coord = ft_strchr(line, ' ');
+	if (coord)
+	{
+		room->x = ft_atoi(coord + 1);
+		coord = ft_strchr(coord + 1, ' ');
+		if (coord)
+			room->y = ft_atoi(coord + 1);
+	}
 	room->id = id;
 	room->empty = -1;
 	if (farm->flags & 1 && farm->start == NULL)

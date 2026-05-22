@@ -18,6 +18,9 @@
 # define START 1
 # define END 2
 
+# define FLAG_LINES 1
+# define FLAG_JSON 2
+
 # define GET_ANTS_LINKS 1
 # define GET_ROOMS 2
 # define __MAX_INT__ 2147483647
@@ -52,6 +55,8 @@ typedef struct s_room
 	char			*name;
 	int				empty;
 	int				weight;
+	int				x;
+	int				y;
 }	t_room;
 
 typedef struct s_input
@@ -93,7 +98,7 @@ int					error_free_line(char *line);
 int					solve(t_farm *f, int flag);
 int					breadth_first_search(t_farm *f, t_queue *q);
 int					generate(t_queue *q, t_farm *f, t_path **p, int t);
-int					send_ants(t_farm *f, t_path *paths, int moving_ants, int x);
+int					send_ants(t_farm *f, t_path *paths, int moving_ants, int flag);
 void				clear_queue(t_queue *q);
 int					initialise_queue(t_queue *q, t_farm *f);
 void				reset_queue(t_queue *q, int start, int end);
@@ -103,13 +108,22 @@ t_path				**save_paths(t_queue *q, t_farm *f, t_path **path_list);
 t_path				*ft_new_path(int *path, int len);
 void				ft_add_path(t_path *paths, t_path *new);
 t_path				**set_path(t_path **path_list, int i, t_farm *f);
-int					send_new_ant(t_farm *f, int *p, int mov, int *fin);
+int					send_new_ant(t_farm *f, int *p, int mov, int *fin, int flag, int *first);
 int					*get_path_lengths(t_farm *f, t_path *paths, int *total);
 void				set_weights(t_farm *f);
 int					check_weights(t_room *n, t_room *c, t_queue *q, t_farm *f);
 int					check_print_space(int x);
 int					check_start_end(t_farm *f, t_queue *q);
 t_path				*reset_ants(int *x, int *i, t_path *paths);
+
+/*
+** JSON Output :
+*/
+void				print_json_map(t_farm *farm);
+void				print_json_turn_start(int turn);
+void				print_json_move(int ant, char *room, int first);
+void				print_json_turn_end(void);
+void				print_json_finalize(void);
 
 /*
 ** Free :

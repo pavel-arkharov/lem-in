@@ -1,0 +1,27 @@
+name: Lem-in CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc make
+
+    - name: Compile
+      run: make
+
+    - name: Run Basic Tests
+      run: |
+        ./lem-in < eval_tests/test_maps/augment_1.map | python3 eval_tests/checker.py
+        ./lem-in < eval_tests/test_maps/augment_2.map | python3 eval_tests/checker.py

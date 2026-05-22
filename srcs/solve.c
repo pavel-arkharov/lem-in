@@ -39,10 +39,14 @@ int	solve(t_farm *farm, int flag)
 		free_path(path_list);
 		return (-1);
 	}
-	i = send_ants(farm, path_list, farm->ant_nb, 0);
+	if (flag & FLAG_JSON)
+		print_json_map(farm);
+	i = send_ants(farm, path_list, farm->ant_nb, flag);
+	if (flag & FLAG_JSON)
+		print_json_finalize();
 	free_path(path_list);
 	free_queue(&queue);
-	if (flag == 1)
+	if (flag & FLAG_LINES)
 		print_count(i);
 	return (0);
 }
